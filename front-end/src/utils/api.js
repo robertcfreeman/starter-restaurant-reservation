@@ -60,10 +60,53 @@ async function fetchJson(url, options, onCancel) {
 
 export async function listReservations(params, signal) {
   const url = new URL(`${API_BASE_URL}/reservations`);
-  Object.entries(params).forEach(([key, value]) =>
+  Object.entries(params).forEach(([key, value]) => 
     url.searchParams.append(key, value.toString())
   );
-  return await fetchJson(url, { headers, signal }, [])
+  return await fetchJson(url, { signal }, [])
     .then(formatReservationDate)
     .then(formatReservationTime);
+}
+export async function listTables(signal) {
+  const url = new URL(`${API_BASE_URL}/tables`);
+  return await fetchJson(url, { signal }, [])
+}
+
+export async function createReservation(data, signal) {
+  const url = `${API_BASE_URL}/reservations`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({data}),
+    signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+export async function createTable(data, signal) {
+  const url = `${API_BASE_URL}/tables`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify({data}),
+    signal,
+  };
+  return await fetchJson(url, options, {});
+}
+
+
+export async function listReservationsByDate(reservation_date, signal) {
+  const url = `${API_BASE_URL}/reservations?date=${reservation_date}`;
+  return await fetchJson(url, {headers, signal}, {});
+}
+
+export async function updateTable(data, signal) {
+  const url = `${API_BASE_URL}/tables/${data.table_id}/seat`;
+  const options = {
+    method: "PUT",
+    headers,
+    body: JSON.stringify({data}),
+    signal,
+  };
+  return await fetchJson(url, options, {});
 }

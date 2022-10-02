@@ -8,8 +8,20 @@ const create = (reservation) => {
 
 }
 
+const list = () => {
+  return knex("reservations")
+    .select("*")
+    .returning("*")
+}
 
+const listByDate = (reservation_date) => {
+  return knex("reservations")
+    .select("*")
+    .where({reservation_date})
+}
 
 module.exports = {
-  create
+  create,
+  list,
+  listByDate,
 }

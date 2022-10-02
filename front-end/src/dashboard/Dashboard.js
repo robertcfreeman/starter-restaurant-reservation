@@ -1,36 +1,59 @@
 import React, { useEffect, useState } from "react";
-import { listReservations } from "../utils/api";
+import { listReservations, listReservationsByDate, listTables } from "../utils/api";
 import ErrorAlert from "../layout/ErrorAlert";
 
-/**
- * Defines the dashboard page.
- * @param date
- *  the date for which the user wants to view reservations.
- * @returns {JSX.Element}
- */
 function Dashboard({ date }) {
   const [reservations, setReservations] = useState([]);
-  const [reservationsError, setReservationsError] = useState(null);
+  const [tables, setTables] = useState([]);
+  const [error, setError] = useState(null);
+  
 
   useEffect(loadDashboard, [date]);
 
   function loadDashboard() {
     const abortController = new AbortController();
-    setReservationsError(null);
-    listReservations({ date }, abortController.signal)
+    setError(null);
+    listReservations({date}, abortController.signal)
       .then(setReservations)
-      .catch(setReservationsError);
+      .catch(setError);
+    listTables()
+      .then(setTables)
+      .catch(setError);
     return () => abortController.abort();
+  }
+
+
+
+  const listElements = (reservation, index) => {
+    const {
+      first_name,
+      last_name,
+      mobile_number,
+      reservation_date,
+      reservation_time,
+      people
+    } = reservation;
+
+    return (
+      <li key={index}>{`${first_name} ${last_name} reserved a table on ${reservation_date} at ${reservation_time} for a party of ${people}. Contact number is ${mobile_number}.`}</li>
+    )
   }
 
   return (
     <main>
       <h1>Dashboard</h1>
       <div className="d-md-flex mb-3">
-        <h4 className="mb-0">Reservations for date</h4>
+        <h4 className="mb-0">Reservations for date {date}</h4>
       </div>
-      <ErrorAlert error={reservationsError} />
-      {JSON.stringify(reservations)}
+      <ErrorAlert error={error} />
+      <ul>
+        {reservations.map((reservation, index) => listElements(reservation, index))}
+      </ul>
+      <ul>
+        {tables.map((table, index) => (
+          <li key={index}>{table.table_name} has {table.capacity} seated</li>
+        ))}
+      </ul>
     </main>
   );
 }
